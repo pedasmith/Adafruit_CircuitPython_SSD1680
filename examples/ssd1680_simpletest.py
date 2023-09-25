@@ -59,7 +59,7 @@ t = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
 g.append(t)
 
 # Create a text label
-label = label.Label(terminalio.FONT, color=0x000000, text="Say...", x=120, y=115, scale=2)
+label = label.Label(terminalio.FONT, color=0x000000, text="Say...", x=120, y=115, scale=1)
 g.append(label)
 display.show(g)
 
