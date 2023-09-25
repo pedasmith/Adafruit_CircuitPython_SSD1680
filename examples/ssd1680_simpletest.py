@@ -18,7 +18,9 @@ Supported products:
 import time
 import board
 import displayio
+import terminalio
 import adafruit_ssd1680
+from adafruit_display_text import label
 
 displayio.release_displays()
 
@@ -26,8 +28,8 @@ displayio.release_displays()
 spi = board.SPI()  # Uses SCK and MOSI
 epd_cs = board.D9
 epd_dc = board.D10
-epd_reset = board.D8  # Set to None for FeatherWing
-epd_busy = board.D7  # Set to None for FeatherWing
+epd_reset = None  # UNDO: board.D8  # Set to None for FeatherWing
+epd_busy = None  # board.D7  # Set to None for FeatherWing
 
 display_bus = displayio.FourWire(
     spi, command=epd_dc, chip_select=epd_cs, reset=epd_reset, baudrate=1000000
@@ -48,29 +50,33 @@ display = adafruit_ssd1680.SSD1680(
 
 g = displayio.Group()
 
-with open("/display-ruler.bmp", "rb") as f:
-    pic = displayio.OnDiskBitmap(f)
-    # CircuitPython 6 & 7 compatible
-    t = displayio.TileGrid(
-        pic, pixel_shader=getattr(pic, "pixel_shader", displayio.ColorConverter())
-    )
-    # CircuitPython 7 compatible only
-    # t = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
-    g.append(t)
+pic = displayio.OnDiskBitmap("/display-ruler.bmp")
+# CircuitPython 6 compatible
+# t = displayio.TileGrid(
+#    pic, pixel_shader=getattr(pic, "pixel_shader", displayio.ColorConverter())
+# )
+t = displayio.TileGrid(pic, pixel_shader=pic.pixel_shader)
+g.append(t)
 
-    display.show(g)
+# Create a text label
+label = label.Label(terminalio.FONT, color=0x000000, text="Say...", x=120, y=115, scale=2)
+g.append(label)
+display.show(g)
 
-    display.refresh()
+display.refresh()
 
-    print("refreshed")
+print("refreshed")
 
-    time.sleep(display.time_to_refresh + 5)
-    # Always refresh a little longer. It's not a problem to refresh
-    # a few seconds more, but it's terrible to refresh too early
-    # (the display will throw an exception when if the refresh
-    # is too soon)
-    print("waited correct time")
+time.sleep(display.time_to_refresh + 5)
+# Always refresh a little longer. It's not a problem to refresh
+# a few seconds more, but it's terrible to refresh too early
+# (the display will throw an exception when if the refresh
+# is too soon)
+print("waited correct time")
 
+# Update the label and refresh the display
+label.text = "hisss!"
+display.refresh()
 
 # Keep the display the same
 while True:
